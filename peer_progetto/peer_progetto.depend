@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1671815194 source:/home/kali/Documents/Progetti_Reti/peer_progetto/main.c
+	<stdio.h>
+	<stdlib.h>
+	"functions.h"
+	<string.h>
+
+1671325623 /home/kali/Documents/Progetti_Reti/peer_progetto/functions.h
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<arpa/inet.h>
+	<time.h>
+	<errno.h>
+
