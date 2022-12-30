@@ -130,6 +130,9 @@ int main()
                     exit(0);
                 }
                 else if(bytes == 0){
+
+                    printf("Client con la porta %d disconnesso\n", fd_open[i]);
+
                     deleted=0;
                     offset=0;
 
@@ -143,6 +146,7 @@ int main()
                         }
 
                     }
+
                     index = fix_memory(index,offset,deleted,storage);
                     fd_open[i] = 0;
                     FD_CLR(i,&readset);

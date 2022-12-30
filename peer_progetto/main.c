@@ -21,9 +21,9 @@ int sottrazione (int a, int b){
     return a-b;
 }
 
-char *troll(char *str){
-    char stringa[100] = "ciriciao gente! ";
-    return strcat(stringa,str);
+char *osimhen(char *str){
+    char *stringa = "OSIMHEN E' L'ATTACCANTE MIGLIORE DELLA SERIE A!";
+    return stringa;
 }
 
 int main(int argc, char *argv[])
@@ -56,22 +56,22 @@ int main(int argc, char *argv[])
     strcpy(pacchetto[1].porta,argv[1]);
     strcpy(pacchetto[1].parametri,"int int");
     strcpy(pacchetto[1].descrizione,"Sottrazione di interi");
-    strcpy(pacchetto[2].nome_funzione,"troll");
+    strcpy(pacchetto[2].nome_funzione,"osimhen");
     strcpy(pacchetto[2].porta,argv[1]);
     strcpy(pacchetto[2].parametri,"char *");
-    strcpy(pacchetto[2].descrizione,"Concatena una stringa a...");
+    strcpy(pacchetto[2].descrizione,"No descrizione, FATTI!");
 
 
     ssize_t var = write(socket_c_server,&pacchetto,sizeof(pacchetto));
     puts("Contatto il server!\n");
-    printf("scritti %d bytes\n",var);
+
 
 
     var = read(socket_c_server,&ricezione,sizeof(ricezione));
-    puts("letto");
+
     if (var>=sizeof(ricezione[0]))
         for (int i=0; i<var/71; i++)
-            printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
+            printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
     else
         puts("Sei il primo e unico peer connesso - Nessuna funzione disponibile!");
 
@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
 
     int choice;
     puts("\n\nBenvenuto nel programma di gestione dei peer!\n");
+
     char str1[100],str2[100];
 
     fd_set readset,writeset;
@@ -97,13 +98,15 @@ int main(int argc, char *argv[])
     server.sin_family = AF_INET;
     server.sin_port = htons(atoi(argv[1]));
 
+    setsockopt(socketfd, SOL_SOCKET, SO_REUSEPORT, &(int){ 1 }, sizeof(int));
+
     Bind(socketfd,(struct sockaddr*)&server,sizeof(server));
     Listen(socketfd,1024);
 
     FD_ZERO(&readset);
     FD_ZERO(&writeset);
 
-
+    puts("\nPremere 1 ed inviare per aggiornare la lista delle funzioni disponibili,\n o invio per richiedere una funzione ad un qualsiasi client\n");
 
     int maxfd = socketfd;
     while (1){
@@ -118,7 +121,7 @@ int main(int argc, char *argv[])
                 FD_SET(i,&writeset);
 
 
-        puts("Sono qui\n");
+
 
         fd = Select(maxfd+1,&readset,&writeset,NULL,NULL);
         sleep(1);
@@ -133,19 +136,19 @@ int main(int argc, char *argv[])
                 maxfd = connectedfd;
 
             fd--;
-
+            fflush(stdin);
         }
 
         if (FD_ISSET(socket_c_server,&readset)){
 
-            puts("sono nell'if socket\n");
+
 
                 var = read(socket_c_server,&ricezione,sizeof(ricezione));
-                if (var<71)
+                if (var<sizeof(ricezione[0]))
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
                 else
-                    for (int i=0; i<var/71; i++)
-                        printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
+                    for (int i=0; i<var/sizeof(ricezione[0]); i++)
+                        printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
 
         }
 
@@ -158,11 +161,11 @@ int main(int argc, char *argv[])
             if(strcmp(buffer,standard) == 0){
                 fflush(stdin);
                 write(socket_c_server," ",strlen(" "));
-                puts("prima dell'if... credo");
+
 
 
             }
-            else{
+            else if (strcmp(buffer, "\n") == 0){
 
                 fflush(stdin);
 
@@ -185,9 +188,9 @@ int main(int argc, char *argv[])
 
                 puts(buffer);
 
-                puts("Inserire i parametri di input della funzione richiesta, avendo cura di distanziarli con uno spazio:");
+                puts("\nInserire i parametri di input della funzione richiesta, avendo cura di distanziarli con uno spazio, qualora fossero piu' di uno:");
 
-                gets(str1);
+                read(1,str1,30);
 
                 write(clientfd,str1,strlen(str1));
 
@@ -197,7 +200,7 @@ int main(int argc, char *argv[])
 
                 read(clientfd,buffer,4096);
 
-                puts("L'output desiderato: ");
+                puts("\nL'output desiderato: ");
                 printf("%s\n",buffer);
 
                 shutdown(clientfd,2);
@@ -206,6 +209,8 @@ int main(int argc, char *argv[])
 
                 fd--;
             }
+            else
+                continue;
 
         }
 
@@ -218,11 +223,13 @@ int main(int argc, char *argv[])
 
             if (FD_ISSET(i,&writeset)){
 
-                printf("Servo il client %desimo\n",i);
+
 
                 fd--;
 
                 read(i,&richiesta,sizeof(richiesta));
+
+                printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
                 if(strcmp(richiesta.nome_funzione,"somma") == 0){
                     int a,b;
@@ -230,7 +237,7 @@ int main(int argc, char *argv[])
                     write(i,"Hai richiesto la funzione di somma!",strlen("Hai richiesto la funzione di somma!"));
                     read(i,str2,100);
                     token1 = strtok(str2," ");
-                    token2 = strtok(token1, "\n");
+                    token2 = strtok(NULL, " ");
                     a = atoi(token1);
                     b = atoi(token2);
                     a = somma(a,b);
@@ -239,6 +246,31 @@ int main(int argc, char *argv[])
                     write(i,str2,strlen(str2));
                 }
 
+                if(strcmp(richiesta.nome_funzione,"sottrazione") == 0){
+                    int a,b;
+                    char *token1, *token2;
+                    write(i,"Hai richiesto la funzione di sottrazione!",strlen("Hai richiesto la funzione di sottrazione!"));
+                    read(i,str2,100);
+                    token1 = strtok(str2," ");
+                    token2 = strtok(NULL, " ");
+                    a = atoi(token1);
+                    b = atoi(token2);
+                    a = sottrazione(a,b);
+                    memset(str2,0,sizeof(str2));
+                    sprintf(str2,"%d",a);
+                    write(i,str2,strlen(str2));
+                }
+                if(strcmp(richiesta.nome_funzione,"osimhen") == 0){
+                    int a,b;
+                    char *token1, *token2;
+                    write(i,"Hai richiesto la funzione OSIMHEN!" ,strlen("Hai richiesto la funzione OSIMHEN!"));
+                    read(i,str2,100);
+                    strcpy(str2,osimhen(str2));
+                    write(i,str2,strlen(str2));
+                }
+
+                fflush(stdin);
+
                 close(i);
 
                 fd_occupati[i] = 0;
@@ -246,8 +278,8 @@ int main(int argc, char *argv[])
                 FD_CLR(i,&writeset);
                 FD_CLR(i,&readset);
 
-                printf("Client %desimo servito\n",i);
-
+                printf("Client servito!\n");
+                fflush(stdin);
                 if(maxfd == i)
                     while (fd_occupati[--i] == 0){
                         maxfd = i;
