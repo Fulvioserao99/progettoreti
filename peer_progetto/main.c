@@ -61,27 +61,21 @@ int main(int argc, char *argv[])
     strcpy(pacchetto[2].parametri,"char *");
     strcpy(pacchetto[2].descrizione,"Concatena una stringa a...");
 
-    int ch;
+
     ssize_t var = write(socket_c_server,&pacchetto,sizeof(pacchetto));
     puts("Contatto il server!\n");
     printf("scritti %d bytes\n",var);
 
-    read(socket_c_server,buffer,sizeof(buffer));//comunicazione server circa quello che mi sta arrivando
-    ch = atoi(buffer);
-    //write(socket_c_server,"ok",strlen("ok"));
 
-
-    if (!ch){ //se non c'e' roba da leggere, sono il primo peer arrivato
-        read(socket_c_server,buffer,sizeof(buffer));
-        puts(buffer);
-    }
-    else{
-        var = read(socket_c_server,&ricezione,sizeof(ricezione));
-        printf("\nSono nel caso in cui ch sia positivo! %d\n",var);
+    var = read(socket_c_server,&ricezione,sizeof(ricezione));
+    puts("letto");
+    if (var>=sizeof(ricezione[0]))
         for (int i=0; i<var/71; i++)
             printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
+    else
+        puts("Sei il primo e unico peer connesso - Nessuna funzione disponibile!");
 
-    }
+
 
 
 
@@ -193,7 +187,7 @@ int main(int argc, char *argv[])
 
                 puts("Inserire i parametri di input della funzione richiesta, avendo cura di distanziarli con uno spazio:");
 
-                scanf("%s",str1);
+                gets(str1);
 
                 write(clientfd,str1,strlen(str1));
 
@@ -231,18 +225,17 @@ int main(int argc, char *argv[])
                 read(i,&richiesta,sizeof(richiesta));
 
                 if(strcmp(richiesta.nome_funzione,"somma") == 0){
-                    int a,b,c,indice=0;
+                    int a,b;
+                    char *token1, *token2;
                     write(i,"Hai richiesto la funzione di somma!",strlen("Hai richiesto la funzione di somma!"));
                     read(i,str2,100);
-                    a = atoi(str2);
-
-                    while (str2[indice] != ' ')
-                        ++indice;
-
-                    b = atoi(str2+indice+1);
-                    c = somma(a,b);
+                    token1 = strtok(str2," ");
+                    token2 = strtok(token1, "\n");
+                    a = atoi(token1);
+                    b = atoi(token2);
+                    a = somma(a,b);
                     memset(str2,0,sizeof(str2));
-                    sprintf(str2,"%d",c);
+                    sprintf(str2,"%d",a);
                     write(i,str2,strlen(str2));
                 }
 

@@ -8,16 +8,17 @@ struct Pacchetto{
     char porta[6];
     char parametri[15];
     char descrizione[30];
-}storage[300],to_send[300];
+}storage[300];
 
 
 int fix_memory(int index, int offset, int deleted, struct Pacchetto* storage){
-    for(int i=offset; i<(index-offset); i++){
-        memcpy(&storage[i],&storage[i-1],sizeof(storage[i]));
+    for(int i=offset+deleted; i<(index-offset); i++){
+        memcpy(&storage[i-deleted],&storage[i],sizeof(storage[i]));
     }
     index-=deleted;
     memset(&storage[index],0,sizeof(storage));
     return index;
+
 }
 
 int main()
@@ -27,26 +28,17 @@ int main()
     char ricezione[4096];
 
 
-    if ((socketfd = socket(AF_INET,SOCK_STREAM,0)) < 0){
-        perror("socket");
-        exit(1);
-    }
+    socketfd = Socket(AF_INET,SOCK_STREAM,0);
+
     struct sockaddr_in server;
     server.sin_addr.s_addr = htonl(INADDR_ANY);
     server.sin_family = AF_INET;
     server.sin_port = htons(52000);
 
-    if ((bind(socketfd,(struct sockaddr*)&server,sizeof(server))) < 0){
-        perror("bind");
-        exit(1);
-    }
+    Bind(socketfd,(struct sockaddr*)&server,sizeof(server));
 
+    Listen(socketfd,50);
 
-
-    if (listen(socketfd,5) < 0){
-        perror("listen");
-        exit(1);
-    }
 
 
 
@@ -67,7 +59,7 @@ int main()
             if(fd_open[i])
                 FD_SET(i,&readset);
 
-        puts("\nsono qui!\n");
+
         fd = select(maxfd+1,&readset,NULL,NULL,NULL);
 
 
@@ -84,9 +76,9 @@ int main()
 
             n_count = 0; //azzero il contatore per tenere traccia degli elementi inviabili al peer iesimo
             ssize_t var = read(fd_connected,&storage[index],sizeof(storage));
-            printf("\nletti %d bytes\n",var);
-            index+=var/71; //aggiorno l'indice per le locazioni occupate nella struct storage
-            printf("\n\nindex=%d\n\n",index);
+
+            index+=var/sizeof(storage[0]); //aggiorno l'indice per le locazioni occupate nella struct storage
+
             porta1 = atoi(storage[index-1].porta);
 
             fd_open[fd_connected] = porta1;
@@ -94,35 +86,24 @@ int main()
             for(int i=0; i<index; i++){
                 porta2 = atoi(storage[i].porta);
                 if(porta1 != porta2 && (strcmp(storage[i].porta,"") != 0) ){
-                    memcpy(to_send+(n_count),&storage[i],sizeof(storage[0]));
+                    write(fd_connected,&storage[i],sizeof(storage[0]));
                     n_count++;
+
                 }
             }
 
-            sprintf(buffer,"%d",n_count);
-
-            write(fd_connected,buffer,strlen(buffer));//gli mando il valore di count
-
+            if(!n_count)
+                write(fd_connected," ",strlen(" "));
 
 
 
-            sleep(1);
-            if (n_count){
-
-                write(fd_connected,&to_send,(sizeof(to_send[0])*n_count));
-                memset(to_send,0,sizeof(to_send));
-
-            }
-            else{
-                write(fd_connected,"Sei il primo peer, nothing for u :)",strlen("Sei il primo peer, nothing for u :)"));
-            }
 
 
             if (maxfd < fd_connected)
                 maxfd = fd_connected;
             fd--;
 
-            printf("Client disponibile! maxfd = %d\n",maxfd);
+
             }
 
 
@@ -151,7 +132,7 @@ int main()
                 else if(bytes == 0){
                     deleted=0;
                     offset=0;
-                    printf("\nClient col fd %d: DISCONNESSO\n",i);
+
                     for(int j=0; j<index; j++){
                         porta3 = atoi(storage[j].porta);
                         if (porta3 == fd_open[i]){
@@ -173,35 +154,28 @@ int main()
                 }
                 }
                 else{
-                    puts("sono in questo else!");
+
                     n_count = 0;
-                    puts("ho letto qualcosa\n");
+
                     for(int j=0; j<index; j++){
                         porta1 = fd_open[i];
                         porta2 = atoi(storage[j].porta);
-                        if(porta1 != porta2 && (strcmp(storage[j].porta,"") != 0) )
-                            memcpy(to_send+(n_count++),&storage[j],sizeof(storage[0]));
+                        if(porta1 != porta2 && (strcmp(storage[j].porta,"") != 0) ){
+                            write(i,&storage[j],sizeof(storage[j]));
+                            n_count++;
+                        }
+
 
 
                     }
 
 
-
-                    puts("provo a scrivere\n");
-
-
-
-
-
-                    if (n_count){
-
-                        write(i,&to_send,(sizeof(to_send[0])*n_count));
-                        memset(to_send,0,sizeof(to_send));
-
-                    }
-                    else{
+                    if (!n_count)
                         write(i," ",strlen(" "));
-                    }
+
+
+
+
 
                 }
             }
