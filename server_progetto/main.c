@@ -50,7 +50,7 @@ int main()
     fd_set readset;
     FD_ZERO(&readset);
 
-    int fd_open[32]={0}, fd, maxfd,fd_connected;
+    int fd_open[FD_SETSIZE]={0}, fd, maxfd,fd_connected;
     fd_open[socketfd]++;
     maxfd = socketfd;
     while(1){
@@ -116,7 +116,7 @@ int main()
 
 
 
-        while(fd > 0 && i < 32){
+        while(fd > 0 && i < FD_SETSIZE){
             i++;
             if(fd_open[i] == 0)
                 continue;

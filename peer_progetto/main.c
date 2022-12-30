@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     char str1[100],str2[100];
 
     fd_set readset,writeset;
-    int fd, fd_occupati[32] = {0};
+    int fd, fd_occupati[FD_SETSIZE] = {0};
     int i,connectedfd,clientfd;
     char standard[10];
     sprintf(standard,"%d",1);
@@ -144,12 +144,17 @@ int main(int argc, char *argv[])
 
 
                 var = read(socket_c_server,&ricezione,sizeof(ricezione));
-                if (var<sizeof(ricezione[0]))
+                if (var > 0 && var < sizeof(ricezione[0]))
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
-                else
+
+                else if (var >= sizeof(ricezione[0]))
                     for (int i=0; i<var/sizeof(ricezione[0]); i++)
                         printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
 
+                else{
+                    puts("La connessione col server e' stata interrotta - Chiusura applicazione");
+                    exit(0);
+                }
         }
 
         i = socketfd;
@@ -214,7 +219,7 @@ int main(int argc, char *argv[])
 
         }
 
-        while (fd > 0 && i < 32){
+        while (fd > 0 && i < FD_SETSIZE){
 
             i++;
 
