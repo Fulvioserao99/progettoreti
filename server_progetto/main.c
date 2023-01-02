@@ -23,6 +23,7 @@ int fix_memory(int index, int offset, int deleted, struct Pacchetto* storage){
 
 int main()
 {
+    int size_struct = sizeof(storage[0]);
     int socketfd, listenfd, i;
     char buffer[4096];
     char ricezione[4096];
@@ -63,8 +64,6 @@ int main()
         fd = select(maxfd+1,&readset,NULL,NULL,NULL);
 
 
-        sleep(1);
-
         ssize_t length;
 
 
@@ -77,7 +76,7 @@ int main()
             n_count = 0; //azzero il contatore per tenere traccia degli elementi inviabili al peer iesimo
             ssize_t var = read(fd_connected,&storage[index],sizeof(storage));
 
-            index+=var/sizeof(storage[0]); //aggiorno l'indice per le locazioni occupate nella struct storage
+            index+=var/size_struct; //aggiorno l'indice per le locazioni occupate nella struct storage
 
             porta1 = atoi(storage[index-1].porta);
 
@@ -86,7 +85,7 @@ int main()
             for(int i=0; i<index; i++){
                 porta2 = atoi(storage[i].porta);
                 if(porta1 != porta2 && (strcmp(storage[i].porta,"") != 0) ){
-                    write(fd_connected,&storage[i],sizeof(storage[0]));
+                    write(fd_connected,&storage[i],size_struct);
                     n_count++;
 
                 }
@@ -139,7 +138,7 @@ int main()
                     for(int j=0; j<index; j++){
                         porta3 = atoi(storage[j].porta);
                         if (porta3 == fd_open[i]){
-                            memset(&storage[j],0,sizeof(storage[0]));
+                            memset(&storage[j],0,size_struct);
                             deleted++; //incrementa il contatore degli elementi cancellati
                             if(deleted == 1)
                                 offset = j; //indice dal quale iniziare la cancellazione

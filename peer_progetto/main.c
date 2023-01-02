@@ -28,10 +28,10 @@ char *osimhen(char *str){
 
 int main(int argc, char *argv[])
 {
-
+    int size_struct = sizeof(ricezione[0]);
     char buffer[4096];
     int socket_c_server, socketfd;
-    struct sockaddr_in client_server, server_client, server;
+    struct sockaddr_in client_server, server;
 
     socket_c_server = Socket(AF_INET,SOCK_STREAM,0);
 
@@ -44,8 +44,6 @@ int main(int argc, char *argv[])
 
     Connect(socket_c_server,(struct sockaddr*)&client_server, sizeof(client_server));
 
-    struct Pacchetto prova;
-    int print = sizeof(prova);
 
 
     strcpy(pacchetto[0].nome_funzione,"somma");
@@ -69,8 +67,8 @@ int main(int argc, char *argv[])
 
     var = read(socket_c_server,&ricezione,sizeof(ricezione));
 
-    if (var>=sizeof(ricezione[0]))
-        for (int i=0; i<var/71; i++)
+    if (var>=size_struct)
+        for (int i=0; i<var/size_struct; i++)
             printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
     else
         puts("Sei il primo e unico peer connesso - Nessuna funzione disponibile!");
@@ -142,13 +140,13 @@ int main(int argc, char *argv[])
         if (FD_ISSET(socket_c_server,&readset)){
 
 
-
+                system("clear");
                 var = read(socket_c_server,&ricezione,sizeof(ricezione));
-                if (var > 0 && var < sizeof(ricezione[0]))
+                if (var > 0 && var < size_struct)
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
 
-                else if (var >= sizeof(ricezione[0]))
-                    for (int i=0; i<var/sizeof(ricezione[0]); i++)
+                else if (var >= size_struct)
+                    for (int i=0; i<var/size_struct; i++)
                         printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
 
                 else{
@@ -174,8 +172,14 @@ int main(int argc, char *argv[])
 
                 fflush(stdin);
 
+
                 puts("Sei un client! Scegli, dalla lista precedente, l'indice corrispondente alla funzione che vuoi richiedere al peer: ");
+                choice = -1;
+
+
                 scanf("%d",&choice);
+
+                system("clear");
 
                 fflush(stdin);
 
@@ -195,7 +199,7 @@ int main(int argc, char *argv[])
 
                 puts("\nInserire i parametri di input della funzione richiesta, avendo cura di distanziarli con uno spazio, qualora fossero piu' di uno:");
 
-                read(1,str1,30);
+                read(0,str1,30);
 
                 write(clientfd,str1,strlen(str1));
 
@@ -214,8 +218,13 @@ int main(int argc, char *argv[])
 
                 fd--;
             }
-            else
+            else{
+                system("clear");
+                puts("- Digitazione non valida -\n");
+                puts("\nPremere 1 ed inviare per aggiornare la lista delle funzioni disponibili,\n o invio per richiedere una funzione ad un qualsiasi client\n");
                 continue;
+            }
+
 
         }
 
@@ -232,7 +241,7 @@ int main(int argc, char *argv[])
 
                 fd--;
 
-                read(i,&richiesta,sizeof(richiesta));
+                read(i,&richiesta,size_struct);
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
