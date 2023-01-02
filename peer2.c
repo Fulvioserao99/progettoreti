@@ -44,19 +44,18 @@ int main(int argc, char *argv[])
 
     Connect(socket_c_server,(struct sockaddr*)&client_server, sizeof(client_server));
 
-
     strcpy(pacchetto[0].nome_funzione,"lunghezza");
     strcpy(pacchetto[0].porta,argv[1]);
     strcpy(pacchetto[0].parametri,"char *");
-    strcpy(pacchetto[0].descrizione,"Restituisce lunghezza della stringa");
+    strcpy(pacchetto[0].descrizione,"Lunghezza della stringa");
     strcpy(pacchetto[1].nome_funzione,"modulo");
     strcpy(pacchetto[1].porta,argv[1]);
     strcpy(pacchetto[1].parametri,"int int");
-    strcpy(pacchetto[1].descrizione,"Resto della divisione tra due int");
+    strcpy(pacchetto[1].descrizione,"Modulo di due int");
     strcpy(pacchetto[2].nome_funzione,"hacked");
     strcpy(pacchetto[2].porta,argv[1]);
     strcpy(pacchetto[2].parametri,"char *");
-    strcpy(pacchetto[2].descrizione,"Stringa a sorpresa stampata a schermo!");
+    strcpy(pacchetto[2].descrizione,"Sorpresa a schermo!");
 
 
     ssize_t var = write(socket_c_server,&pacchetto,sizeof(pacchetto));
