@@ -49,18 +49,16 @@ int main(int argc, char *argv[])
     Connect(socket_c_server,(struct sockaddr*)&client_server, sizeof(client_server));
 
     struct Pacchetto prova;
-    int print = sizeof(prova);
 
-
-    strcpy(pacchetto[0].nome_funzione,"Moltiplicazione");
+    strcpy(pacchetto[0].nome_funzione,"moltiplicazione");
     strcpy(pacchetto[0].porta,argv[1]);
     strcpy(pacchetto[0].parametri,"int int");
     strcpy(pacchetto[0].descrizione,"Moltiplicazione di interi");
-    strcpy(pacchetto[1].nome_funzione,"Divisione");
+    strcpy(pacchetto[1].nome_funzione,"divisione");
     strcpy(pacchetto[1].porta,argv[1]);
     strcpy(pacchetto[1].parametri,"float float");
     strcpy(pacchetto[1].descrizione,"Divisione di float");
-    strcpy(pacchetto[2].nome_funzione,"Kvaratskhelia");
+    strcpy(pacchetto[2].nome_funzione,"kvaratskhelia");
     strcpy(pacchetto[2].porta,argv[1]);
     strcpy(pacchetto[2].parametri,"char *");
     strcpy(pacchetto[2].descrizione,"No descrizione, FATTI!");
@@ -145,8 +143,6 @@ int main(int argc, char *argv[])
 
         if (FD_ISSET(socket_c_server,&readset)){
 
-
-
                 var = read(socket_c_server,&ricezione,sizeof(ricezione));
                 if (var > 0 && var < sizeof(ricezione[0]))
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
@@ -179,6 +175,7 @@ int main(int argc, char *argv[])
                 fflush(stdin);
 
                 puts("Sei un client! Scegli, dalla lista precedente, l'indice corrispondente alla funzione che vuoi richiedere al peer: ");
+                choice = -1;
                 scanf("%d",&choice);
 
                 fflush(stdin);
@@ -199,7 +196,7 @@ int main(int argc, char *argv[])
 
                 puts("\nInserire i parametri di input della funzione richiesta, avendo cura di distanziarli con uno spazio, qualora fossero piu' di uno:");
 
-                read(1,str1,30);
+                read(0,str1,100);
 
                 write(clientfd,str1,strlen(str1));
 
@@ -232,15 +229,13 @@ int main(int argc, char *argv[])
 
             if (FD_ISSET(i,&writeset)){
 
-
-
                 fd--;
 
                 read(i,&richiesta,sizeof(richiesta));
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
-                if(strcmp(richiesta.nome_funzione,"moltiplicazione") == 0){
+              if(strcmp(richiesta.nome_funzione,"moltiplicazione") == 0){
                     int a,b;
                     char *token1, *token2;
                     write(i,"Hai richiesto la funzione di moltiplicazione!",strlen("Hai richiesto la funzione di moltiplicazione!"));
@@ -255,12 +250,11 @@ int main(int argc, char *argv[])
                     write(i,str2,strlen(str2));
                 }
 
-
-                  if(strcmp(richiesta.nome_funzione,"divisione") == 0){
+               if(strcmp(richiesta.nome_funzione,"divisione") == 0){
                     int a,b;
                     char *token1, *token2;
                     write(i,"Hai richiesto la funzione di divisione!",strlen("Hai richiesto la funzione di divisione!"));
-                    read(i,str2,10);
+                    read(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
@@ -271,10 +265,8 @@ int main(int argc, char *argv[])
                     write(i,str2,strlen(str2));
                 }
 
-                }
-                if(strcmp(richiesta.nome_funzione,"kvaratskhelia") == 0){
-                    char *token1, *token2;
-                    write(i,"Hai richiesto la funzione Kvaratskhelia!" ,strlen("Hai richiesto la funzione Kvaratskhelia!"));
+                   if(strcmp(richiesta.nome_funzione,"kvaratskhelia") == 0){
+                    write(i,"Hai richiesto la funzione Kvaratskhelia!",strlen("Hai richiesto la funzione Kvaratskhelia!"));
                     read(i,str2,100);
                     strcpy(str2,kvaratskhelia(str2));
                     write(i,str2,strlen(str2));
