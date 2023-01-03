@@ -10,13 +10,15 @@ struct Pacchetto{
     char descrizione[30];
 }storage[300];
 
-
-int fix_memory(int index, int offset, int deleted, struct Pacchetto* storage){
+//funzione di compattazione della memoria - necessaria perche' alla disconnessione dell'iesimo peer, l'array viene ripulito dalle funzioni
+//inviate dal peer stesso
+int fix_memory(int index, int offset, int deleted, struct Pacchetto* storage){ 
+    //partendo dalla posizione del primo elemento disponibile dopo la cancellazione, e arrivando fino all'ultima disponibile
     for(int i=offset+deleted; i<(index-offset); i++){
-        memcpy(&storage[i-deleted],&storage[i],sizeof(storage[i]));
+        memcpy(&storage[i-deleted],&storage[i],sizeof(storage[i])); //shifto di deleted posizioni tutti gli elementi dell'array
     }
-    index-=deleted;
-    memset(&storage[index],0,sizeof(storage));
+    index-=deleted; //ricalibro l'indice - mi indica quante locazioni sono occupate attualmente
+    memset(&storage[index],0,sizeof(storage)); //pulisco tutte le locazioni successive
     return index;
 
 }
@@ -78,21 +80,21 @@ int main()
 
             index+=var/size_struct; //aggiorno l'indice per le locazioni occupate nella struct storage
 
-            porta1 = atoi(storage[index-1].porta);
+            porta1 = atoi(storage[index-1].porta); //assegno a porta1 l'ultima porta arrivata dal peer al server
 
-            fd_open[fd_connected] = porta1;
+            fd_open[fd_connected] = porta1; //la metto nell'array fd_open, per salvarla e tener comunque traccia dei peer connessi
 
             for(int i=0; i<index; i++){
-                porta2 = atoi(storage[i].porta);
-                if(porta1 != porta2 && (strcmp(storage[i].porta,"") != 0) ){
-                    write(fd_connected,&storage[i],size_struct);
-                    n_count++;
+                porta2 = atoi(storage[i].porta); //porta iesima
+                if(porta1 != porta2 && (strcmp(storage[i].porta,"") != 0) ){ //se le porte sono diverse e la porta iesima non e' la stringa vuota, allora
+                    write(fd_connected,&storage[i],size_struct); //mandala al peer
+                    n_count++; //incrementa il contatore
 
                 }
             }
 
-            if(!n_count)
-                write(fd_connected," ",strlen(" "));
+            if(!n_count) //se non c'erano elementi da inviare
+                write(fd_connected," ",strlen(" ")); //comunicalo al peer
 
 
 
