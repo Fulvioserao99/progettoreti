@@ -64,7 +64,8 @@ int main()
 
 
         fd = select(maxfd+1,&readset,NULL,NULL,NULL);
-
+        
+        sleep(1);
 
         ssize_t length;
 
@@ -95,7 +96,8 @@ int main()
 
             if(!n_count) //se non c'erano elementi da inviare
                 write(fd_connected," ",strlen(" ")); //comunicalo al peer
-
+            
+            sleep(1);
 
 
 
