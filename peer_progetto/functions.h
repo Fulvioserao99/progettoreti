@@ -10,7 +10,6 @@
 
 
 
-
 int Socket(int family, int type, int protocol){
     int n;
     if ((n = socket(family, type, protocol)) < 0){
@@ -47,12 +46,13 @@ void Listen(int socket, int len){
     }
 }
 
-int Accept(int socket,struct sockaddr* sock_addr, int len){
+int Accept(int socket,struct sockaddr* sock_addr, socklen_t *len){
     int n;
-    if ((n = accept(socket,sock_addr, (socklen_t)len)) < 0 ) {
+    if ((n = accept(socket,sock_addr, len)) < 0 ) {
         perror("accept");
         exit(1);
     }
+
     return n;
 }
 
