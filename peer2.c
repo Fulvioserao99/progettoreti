@@ -246,10 +246,10 @@ int main(int argc, char *argv[])
                 
               if(strcmp(richiesta.nome_funzione,"lunghezza") == 0){
                     int a;
+                    memset(str2,0,sizeof(str2));
                     write(i,"Hai richiesto la funzione di lunghezza!",strlen("Hai richiesto la funzione di lunghezza!"));
                     read(i,str2,100);
                     a = lunghezza(str2);
-                    memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
                     write(i,str2,strlen(str2));
                 }
