@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
                 client_server.sin_port = htons(atoi(ricezione[choice].porta)); //si modifica la porta con quella della struct
 
-                Connect(clientfd,&client_server,sizeof(client_server)); //connessione al peer
+                Connect(clientfd,(struct sockaddr*)&client_server,sizeof(client_server)); //connessione al peer
 
                 puts("Connesso ad un altro peer!");
 
