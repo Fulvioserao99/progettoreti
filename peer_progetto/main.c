@@ -28,7 +28,7 @@ char *osimhen(char *str){
 
 int main(int argc, char *argv[])
 {
-    int size_struct = sizeof(ricezione[0]);
+    int size_struct = sizeof(ricezione[0]); //inizializzo una variabile intera che contenga il size della singola locazione di memoria dell'array. Servira' in fase di lettura
     char buffer[4096];
     int socket_c_server, socketfd;
     struct sockaddr_in client_server, server;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     Connect(socket_c_server,(struct sockaddr*)&client_server, sizeof(client_server));
 
 
-
+    // inizializzo la struct
     strcpy(pacchetto[0].nome_funzione,"somma");
     strcpy(pacchetto[0].porta,argv[1]);
     strcpy(pacchetto[0].parametri,"int int");
@@ -59,33 +59,35 @@ int main(int argc, char *argv[])
     strcpy(pacchetto[2].parametri,"char *");
     strcpy(pacchetto[2].descrizione,"No descrizione, FATTI!");
 
-
+    
+    //mando al server la struct con le funzioni
     ssize_t var = write(socket_c_server,&pacchetto,sizeof(pacchetto));
     puts("Contatto il server!\n");
 
 
-
+    //leggo dal server la risposta
     var = read(socket_c_server,&ricezione,sizeof(ricezione));
-
+    
+    //se il numero di bytes letti e' >= al size della singola locazione, allora c'e' almeno una locazione da leggere, e la si stampa a schermo
     if (var>=size_struct)
         for (int i=0; i<var/size_struct; i++)
             printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
-    else
+    else //altrimenti non c'e' nulla da leggere - siamo nel caso in cui siamo il primo e unico peer online
         puts("Sei il primo e unico peer connesso - Nessuna funzione disponibile!");
 
 
 
 
 
-    int choice;
+    int choice; //variabile che indica la scelta dell'utente
     puts("\n\nBenvenuto nel programma di gestione dei peer!\n");
 
-    char str1[100],str2[100];
+    char str1[100],str2[100]; //stringhe buffer per operazioni future
 
     fd_set readset,writeset;
     int fd, fd_occupati[FD_SETSIZE] = {0};
     int i,connectedfd,clientfd;
-    char standard[10];
+    char standard[10]; //stringa standard che conterra' il carattere '1' e '\n'; servira' come identificatore per l'input utente
     sprintf(standard,"%d",1);
     strcat(standard,"\n");
 
@@ -124,7 +126,7 @@ int main(int argc, char *argv[])
         fd = Select(maxfd+1,&readset,&writeset,NULL,NULL);
         sleep(1);
 
-        if (FD_ISSET(socketfd,&readset)){
+        if (FD_ISSET(socketfd,&readset)){ //se ci stanno contattando sulla socket server (peer che cerca di connettersi a noi)
             puts("Nuovo client connesso!\n");
 
             connectedfd = accept(socketfd,NULL,NULL);
@@ -137,19 +139,19 @@ int main(int argc, char *argv[])
             fflush(stdin);
         }
 
-        if (FD_ISSET(socket_c_server,&readset)){
+        if (FD_ISSET(socket_c_server,&readset)){ // se c'e' qualcosa da leggere dal server (aggiornamento lista)
 
 
                 system("clear");
                 var = read(socket_c_server,&ricezione,sizeof(ricezione));
-                if (var > 0 && var < size_struct)
+                if (var > 0 && var < size_struct) //se c'e' qualcosa da leggere, ma non grande quanto size_struct, non vi sono peer online
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
 
-                else if (var >= size_struct)
+                else if (var >= size_struct) //altrimenti stampa a schermo, se var >= sizestruct
                     for (int i=0; i<var/size_struct; i++)
                         printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
 
-                else{
+                else{ //altrimenti, se la read restituisce 0, siamo nel caso in cui il server sia andato offline.
                     puts("La connessione col server e' stata interrotta - Chiusura applicazione");
                     exit(0);
                 }
@@ -157,18 +159,18 @@ int main(int argc, char *argv[])
 
         i = socketfd;
 
-        if (FD_ISSET(STDIN_FILENO,&readset)){
+        if (FD_ISSET(STDIN_FILENO,&readset)){ //se c'e' qualcosa da leggere dallo stdin
             memset(buffer,0,sizeof(buffer));
             read(STDIN_FILENO, buffer, 10);
 
-            if(strcmp(buffer,standard) == 0){
+            if(strcmp(buffer,standard) == 0){ // se cio' che e' stato letto dallo stdin corrisponde a "1\n"
                 fflush(stdin);
-                write(socket_c_server," ",strlen(" "));
+                write(socket_c_server," ",strlen(" ")); //contatta il server - richiesta aggiornamento lista
 
 
 
             }
-            else if (strcmp(buffer, "\n") == 0){
+            else if (strcmp(buffer, "\n") == 0){ //altrimenti, se si e' premuto solo "invio"
 
                 fflush(stdin);
 
@@ -185,9 +187,9 @@ int main(int argc, char *argv[])
 
                 clientfd =  Socket(AF_INET,SOCK_STREAM,0);
 
-                client_server.sin_port = htons(atoi(ricezione[choice].porta));
+                client_server.sin_port = htons(atoi(ricezione[choice].porta)); //si modifica la porta con quella della struct
 
-                Connect(clientfd,&client_server,sizeof(client_server)); //modificare la porta con la porta della struct
+                Connect(clientfd,&client_server,sizeof(client_server)); //connessione al peer
 
                 puts("Connesso ad un altro peer!");
 
@@ -228,7 +230,7 @@ int main(int argc, char *argv[])
 
         }
 
-        while (fd > 0 && i < FD_SETSIZE){
+        while (fd > 0 && i < FD_SETSIZE){ //se esiste almeno un client da servire
 
             i++;
 
