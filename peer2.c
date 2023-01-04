@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "functions.h"
 #include <string.h>
-#include <errno.h>
+#include <erno.h>
 
 
 
