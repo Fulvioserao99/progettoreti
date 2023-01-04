@@ -13,19 +13,16 @@ struct Pacchetto{
     char descrizione[30];
 }pacchetto[3],ricezione[100], richiesta;
 
-int moltiplicazione(int a, int b) {
-return a*b;
+int lunghezza(char *str) {
+return strlen(str)-1;
 }
 
-float divisione(float a, float b) {
-if(a >= b)
-return a/b;
-else
-return 0.0;
+int modulo(int a, int b) {
+return a%b;
 }
 
-char *kvaratskhelia(char *str){
-    char *stringa = "Kvaratskhelia è indubbiamente più forte di Rafael Leao!";
+char *hacked(char *str){
+    char *stringa = "Sei stato hackerato da Fulvio/Luca/Simone!";
     return stringa;
 }
 
@@ -48,19 +45,18 @@ int main(int argc, char *argv[])
     Connect(socket_c_server,(struct sockaddr*)&client_server, sizeof(client_server));
 
 
-
-    strcpy(pacchetto[0].nome_funzione,"moltiplicazione");
+    strcpy(pacchetto[0].nome_funzione,"lunghezza");
     strcpy(pacchetto[0].porta,argv[1]);
-    strcpy(pacchetto[0].parametri,"int int");
-    strcpy(pacchetto[0].descrizione,"Moltiplicazione di interi");
-    strcpy(pacchetto[1].nome_funzione,"divisione");
+    strcpy(pacchetto[0].parametri,"char *");
+    strcpy(pacchetto[0].descrizione,"Lunghezza della stringa");
+    strcpy(pacchetto[1].nome_funzione,"modulo");
     strcpy(pacchetto[1].porta,argv[1]);
-    strcpy(pacchetto[1].parametri,"float float");
-    strcpy(pacchetto[1].descrizione,"Divisione di float");
-    strcpy(pacchetto[2].nome_funzione,"kvaratskhelia");
+    strcpy(pacchetto[1].parametri,"int int");
+    strcpy(pacchetto[1].descrizione,"Modulo di due int");
+    strcpy(pacchetto[2].nome_funzione,"hacked");
     strcpy(pacchetto[2].porta,argv[1]);
     strcpy(pacchetto[2].parametri,"char *");
-    strcpy(pacchetto[2].descrizione,"No descrizione, FATTI!");
+    strcpy(pacchetto[2].descrizione,"Sorpresa a schermo!");
 
 
     ssize_t var = write(socket_c_server,&pacchetto,sizeof(pacchetto));
@@ -141,7 +137,7 @@ int main(int argc, char *argv[])
         }
 
         if (FD_ISSET(socket_c_server,&readset)){
-		
+
 		fd--;
                 system("clear");
                 var = read(socket_c_server,&ricezione,sizeof(ricezione));
@@ -248,40 +244,36 @@ int main(int argc, char *argv[])
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
-                              if(strcmp(richiesta.nome_funzione,"moltiplicazione") == 0){
-                    int a,b;
-                    char *token1, *token2;
-                    write(i,"Hai richiesto la funzione di moltiplicazione!",strlen("Hai richiesto la funzione di moltiplicazione!"));
-                    read(i,str2,10);
-                    token1 = strtok(str2," ");
-                    token2 = strtok(NULL, " ");
-                    a = atoi(token1);
-                    b = atoi(token2);
-                    a = moltiplicazione(a,b);
+                
+              if(strcmp(richiesta.nome_funzione,"lunghezza") == 0){
+                    int a;
                     memset(str2,0,sizeof(str2));
+                    write(i,"Hai richiesto la funzione di lunghezza!",strlen("Hai richiesto la funzione di lunghezza!"));
+                    read(i,str2,100);
+                    a = lunghezza(str2);
                     sprintf(str2,"%d",a);
                     write(i,str2,strlen(str2));
                 }
 
-               if(strcmp(richiesta.nome_funzione,"divisione") == 0){
+               if(strcmp(richiesta.nome_funzione,"modulo") == 0){
                     int a,b;
                     char *token1, *token2;
-                    write(i,"Hai richiesto la funzione di divisione!",strlen("Hai richiesto la funzione di divisione!"));
+                    write(i,"Hai richiesto la funzione di modulo!",strlen("Hai richiesto la funzione di modulo!"));
                     read(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
                     b = atoi(token2);
-                    a = divisione(a,b);
+                    a = modulo(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
                     write(i,str2,strlen(str2));
                 }
 
-                   if(strcmp(richiesta.nome_funzione,"kvaratskhelia") == 0){
-                    write(i,"Hai richiesto la funzione Kvaratskhelia!",strlen("Hai richiesto la funzione Kvaratskhelia!"));
+                   if(strcmp(richiesta.nome_funzione,"hacked") == 0){
+                    write(i,"Hai richiesto la funzione hacked!",strlen("Hai richiesto la funzione hacked!"));
                     read(i,str2,100);
-                    strcpy(str2,kvaratskhelia(str2));
+                    strcpy(str2,hacked(str2));
                     write(i,str2,strlen(str2));
                 }
 
