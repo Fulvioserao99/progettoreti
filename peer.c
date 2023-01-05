@@ -3,7 +3,7 @@
 #include "functions.h"
 #include <string.h>
 #include <errno.h>
-
+#include <netdb.h>
 
 
 struct Pacchetto{
@@ -13,19 +13,16 @@ struct Pacchetto{
     char descrizione[30];
 }pacchetto[3],ricezione[100], richiesta;
 
-int moltiplicazione(int a, int b) {
-return a*b;
+int somma (int a, int b){
+    return a+b;
 }
 
-float divisione(float a, float b) {
-if(a >= b)
-return a/b;
-else
-return 0.0;
+int sottrazione (int a, int b){
+    return a-b;
 }
 
-char *kvaratskhelia(char *str){
-    char *stringa = "Kvaratskhelia è indubbiamente più forte di Rafael Leao!";
+char *osimhen(char *str){
+    char *stringa = "OSIMHEN E' L'ATTACCANTE MIGLIORE DELLA SERIE A!";
     return stringa;
 }
 
@@ -49,15 +46,15 @@ int main(int argc, char *argv[])
 
 
 
-    strcpy(pacchetto[0].nome_funzione,"moltiplicazione");
+    strcpy(pacchetto[0].nome_funzione,"somma");
     strcpy(pacchetto[0].porta,argv[1]);
     strcpy(pacchetto[0].parametri,"int int");
-    strcpy(pacchetto[0].descrizione,"Moltiplicazione di interi");
-    strcpy(pacchetto[1].nome_funzione,"divisione");
+    strcpy(pacchetto[0].descrizione,"Somma di interi");
+    strcpy(pacchetto[1].nome_funzione,"sottrazione");
     strcpy(pacchetto[1].porta,argv[1]);
-    strcpy(pacchetto[1].parametri,"float float");
-    strcpy(pacchetto[1].descrizione,"Divisione di float");
-    strcpy(pacchetto[2].nome_funzione,"kvaratskhelia");
+    strcpy(pacchetto[1].parametri,"int int");
+    strcpy(pacchetto[1].descrizione,"Sottrazione di interi");
+    strcpy(pacchetto[2].nome_funzione,"osimhen");
     strcpy(pacchetto[2].porta,argv[1]);
     strcpy(pacchetto[2].parametri,"char *");
     strcpy(pacchetto[2].descrizione,"No descrizione, FATTI!");
@@ -65,8 +62,6 @@ int main(int argc, char *argv[])
 
     ssize_t var = FullWrite(socket_c_server,&pacchetto,sizeof(pacchetto));
     puts("Contatto il server!\n");
-
-
 
 
 
@@ -116,7 +111,7 @@ int main(int argc, char *argv[])
 
 
         fd = Select(maxfd+1,&readset,&writeset,NULL,NULL);
-        sleep(1);
+
 
         if (FD_ISSET(socketfd,&readset)){
             puts("Nuovo client connesso!\n");
@@ -133,9 +128,11 @@ int main(int argc, char *argv[])
 
         if (FD_ISSET(socket_c_server,&readset)){
 
+                fd--;
 
                 system("clear");
-                var = read(socket_c_server,&ricezione,sizeof(ricezione));
+
+                var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
                 if (var > 0 && var < size_struct)
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
 
@@ -239,41 +236,42 @@ int main(int argc, char *argv[])
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
-                if(strcmp(richiesta.nome_funzione,"moltiplicazione") == 0){
+                if(strcmp(richiesta.nome_funzione,"somma") == 0){
                     int a,b;
                     char *token1, *token2;
-                    write(i,"Hai richiesto la funzione di moltiplicazione!",strlen("Hai richiesto la funzione di moltiplicazione!"));
-                    read(i,str2,10);
+                    FullWrite(i,"Hai richiesto la funzione di somma!",strlen("Hai richiesto la funzione di somma!"));
+                    FullRead(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
                     b = atoi(token2);
-                    a = moltiplicazione(a,b);
+                    a = somma(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
 
-               if(strcmp(richiesta.nome_funzione,"divisione") == 0){
+                if(strcmp(richiesta.nome_funzione,"sottrazione") == 0){
                     int a,b;
                     char *token1, *token2;
-                    write(i,"Hai richiesto la funzione di divisione!",strlen("Hai richiesto la funzione di divisione!"));
-                    read(i,str2,100);
+                    FullWrite(i,"Hai richiesto la funzione di sottrazione!",strlen("Hai richiesto la funzione di sottrazione!"));
+                    FullRead(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
                     b = atoi(token2);
-                    a = divisione(a,b);
+                    a = sottrazione(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
-
-                   if(strcmp(richiesta.nome_funzione,"kvaratskhelia") == 0){
-                    write(i,"Hai richiesto la funzione Kvaratskhelia!",strlen("Hai richiesto la funzione Kvaratskhelia!"));
-                    read(i,str2,100);
-                    strcpy(str2,kvaratskhelia(str2));
-                    write(i,str2,strlen(str2));
+                if(strcmp(richiesta.nome_funzione,"osimhen") == 0){
+                    int a,b;
+                    char *token1, *token2;
+                    FullWrite(i,"Hai richiesto la funzione OSIMHEN!" ,strlen("Hai richiesto la funzione OSIMHEN!"));
+                    FullRead(i,str2,100);
+                    strcpy(str2,osimhen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
 
                 fflush(stdin);
