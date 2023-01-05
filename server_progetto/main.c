@@ -2,32 +2,6 @@
 #include <stdlib.h>
 #include "functions.h"
 
-ssize_t FullWrite(int fd, const void *buf, size_t count)
-{
-	size_t nleft;
-	ssize_t nwritten;
-	nleft = count;
-	while (nleft > 0) {
-
-	/* repeat until no left */
-	if ( (nwritten = write(fd, buf, nleft)) < 0) {
-		if (errno == EINTR) { /* if interrupted by system call */
-		continue;
-		/* repeat the loop */
-		} else {
-		exit(nwritten); /* otherwise exit with error */
-		}
-	}
-
-	nleft -= nwritten;
-	/* set left to write */
-	buf +=nwritten;
-	/* set pointer */
-	}
-
-	return (nleft);
-}
-
 struct Pacchetto{
     char nome_funzione[20];
     char porta[6];
@@ -100,7 +74,7 @@ int main()
 
 
             n_count = 0; //azzero il contatore per tenere traccia degli elementi inviabili al peer iesimo
-            ssize_t var = read(fd_connected,&storage[index],sizeof(storage));
+            ssize_t var = FullRead(fd_connected,&storage[index],sizeof(storage));
 
             index+=var/size_struct; //aggiorno l'indice per le locazioni occupate nella struct storage
 
@@ -118,7 +92,7 @@ int main()
             }
 
             if(!n_count)
-                write(fd_connected," ",strlen(" "));
+                FullWrite(fd_connected," ",strlen(" "));
 
             sleep(1);
 
@@ -149,7 +123,7 @@ int main()
 
             if(FD_ISSET(i,&readset)){
                 fd--;
-                ssize_t bytes = read(i,buffer,sizeof(buffer));
+                ssize_t bytes = FullRead(i,buffer,sizeof(buffer));
                 if(bytes < 0){
 
                     puts("read error");
@@ -201,7 +175,7 @@ int main()
 
 
                     if (!n_count)
-                        write(i," ",strlen(" "));
+                        FullWrite(i," ",strlen(" "));
 
 
 
