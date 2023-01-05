@@ -5,6 +5,7 @@
 #include <errno.h>
 
 
+
 struct Pacchetto{
     char nome_funzione[20];
     char porta[6];
@@ -62,18 +63,9 @@ int main(int argc, char *argv[])
     strcpy(pacchetto[2].descrizione,"No descrizione, FATTI!");
 
 
-    ssize_t var = write(socket_c_server,&pacchetto,sizeof(pacchetto));
+    ssize_t var = FullWrite(socket_c_server,&pacchetto,sizeof(pacchetto));
     puts("Contatto il server!\n");
 
-
-
-    var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
-
-    if (var>=size_struct)
-        for (int i=0; i<var/size_struct; i++)
-            printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
-    else
-        puts("Sei il primo e unico peer connesso - Nessuna funzione disponibile!");
 
 
 
@@ -124,7 +116,7 @@ int main(int argc, char *argv[])
 
 
         fd = Select(maxfd+1,&readset,&writeset,NULL,NULL);
-        
+        sleep(1);
 
         if (FD_ISSET(socketfd,&readset)){
             puts("Nuovo client connesso!\n");
@@ -140,10 +132,10 @@ int main(int argc, char *argv[])
         }
 
         if (FD_ISSET(socket_c_server,&readset)){
-		
-		fd--;
+
+
                 system("clear");
-                var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
+                var = read(socket_c_server,&ricezione,sizeof(ricezione));
                 if (var > 0 && var < size_struct)
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
 
@@ -193,7 +185,7 @@ int main(int argc, char *argv[])
 
                 puts("Connesso ad un altro peer!");
 
-                write(clientfd,&ricezione[choice],sizeof(ricezione[choice])); //mando la richiesta del client
+                FullWrite(clientfd,&ricezione[choice],sizeof(ricezione[choice])); //mando la richiesta del client
 
                 FullRead(clientfd,buffer,4096); //leggo la risposta del server per la conferma
 
@@ -224,7 +216,7 @@ int main(int argc, char *argv[])
                 system("clear");
                 puts("- Digitazione non valida -\n");
                 puts("\nPremere 1 ed inviare per aggiornare la lista delle funzioni disponibili,\n o invio per richiedere una funzione ad un qualsiasi client\n");
-             	continue;
+                continue;
             }
 
 
@@ -247,11 +239,11 @@ int main(int argc, char *argv[])
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
-                              if(strcmp(richiesta.nome_funzione,"moltiplicazione") == 0){
+                if(strcmp(richiesta.nome_funzione,"moltiplicazione") == 0){
                     int a,b;
                     char *token1, *token2;
-                    FullWrite(i,"Hai richiesto la funzione di moltiplicazione!",strlen("Hai richiesto la funzione di moltiplicazione!"));
-                    FullRead(i,str2,10);
+                    write(i,"Hai richiesto la funzione di moltiplicazione!",strlen("Hai richiesto la funzione di moltiplicazione!"));
+                    read(i,str2,10);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
@@ -259,14 +251,14 @@ int main(int argc, char *argv[])
                     a = moltiplicazione(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
-                    FullWrite(i,str2,strlen(str2));
+                    write(i,str2,strlen(str2));
                 }
 
                if(strcmp(richiesta.nome_funzione,"divisione") == 0){
                     int a,b;
                     char *token1, *token2;
                     write(i,"Hai richiesto la funzione di divisione!",strlen("Hai richiesto la funzione di divisione!"));
-                    FullRead(i,str2,100);
+                    read(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
@@ -274,14 +266,14 @@ int main(int argc, char *argv[])
                     a = divisione(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
-                    FullWrite(i,str2,strlen(str2));
+                    write(i,str2,strlen(str2));
                 }
 
                    if(strcmp(richiesta.nome_funzione,"kvaratskhelia") == 0){
                     write(i,"Hai richiesto la funzione Kvaratskhelia!",strlen("Hai richiesto la funzione Kvaratskhelia!"));
-                    FullRead(i,str2,100);
+                    read(i,str2,100);
                     strcpy(str2,kvaratskhelia(str2));
-                    FullWrite(i,str2,strlen(str2));
+                    write(i,str2,strlen(str2));
                 }
 
                 fflush(stdin);
