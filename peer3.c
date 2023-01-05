@@ -59,19 +59,8 @@ int main(int argc, char *argv[])
     strcpy(pacchetto[2].descrizione,"Sorpresa a schermo!");
 
 
-    ssize_t var = write(socket_c_server,&pacchetto,sizeof(pacchetto));
+    ssize_t var = FullWrite(socket_c_server,&pacchetto,sizeof(pacchetto));
     puts("Contatto il server!\n");
-
-
-
-    var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
-
-    if (var>=size_struct)
-        for (int i=0; i<var/size_struct; i++)
-            printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
-    else
-        puts("Sei il primo e unico peer connesso - Nessuna funzione disponibile!");
-
 
 
 
@@ -121,7 +110,7 @@ int main(int argc, char *argv[])
 
 
         fd = Select(maxfd+1,&readset,&writeset,NULL,NULL);
-        
+
 
         if (FD_ISSET(socketfd,&readset)){
             puts("Nuovo client connesso!\n");
@@ -244,7 +233,7 @@ int main(int argc, char *argv[])
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
-                
+
               if(strcmp(richiesta.nome_funzione,"lunghezza") == 0){
                     int a;
                     memset(str2,0,sizeof(str2));
