@@ -3,7 +3,7 @@
 #include "functions.h"
 #include <string.h>
 #include <errno.h>
-
+#include <netdb.h>
 
 
 struct Pacchetto{
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
 
 
-    var = read(socket_c_server,&ricezione,sizeof(ricezione));
+    var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
 
     if (var>=size_struct)
         for (int i=0; i<var/size_struct; i++)
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
 
         fd = Select(maxfd+1,&readset,&writeset,NULL,NULL);
-        sleep(1);
+
 
         if (FD_ISSET(socketfd,&readset)){
             puts("Nuovo client connesso!\n");
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
                 system("clear");
 
-                var = read(socket_c_server,&ricezione,sizeof(ricezione));
+                var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
                 if (var > 0 && var < size_struct)
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
 
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 
             if(strcmp(buffer,standard) == 0){
                 fflush(stdin);
-                write(socket_c_server," ",strlen(" "));
+                FullWrite(socket_c_server," ",strlen(" "));
 
 
 
@@ -193,9 +193,9 @@ int main(int argc, char *argv[])
 
                 puts("Connesso ad un altro peer!");
 
-                write(clientfd,&ricezione[choice],sizeof(ricezione[choice])); //mando la richiesta del client
+                FullWrite(clientfd,&ricezione[choice],sizeof(ricezione[choice])); //mando la richiesta del client
 
-                read(clientfd,buffer,4096); //leggo la risposta del server per la conferma
+                FullRead(clientfd,buffer,4096); //leggo la risposta del server per la conferma
 
                 puts(buffer);
 
@@ -203,13 +203,13 @@ int main(int argc, char *argv[])
 
                 read(0,str1,30);
 
-                write(clientfd,str1,strlen(str1));
+                FullWrite(clientfd,str1,strlen(str1));
 
                 memset(buffer,0,sizeof(buffer));
 
                 memset(str1,0,sizeof(str1));
 
-                read(clientfd,buffer,4096);
+                FullRead(clientfd,buffer,4096);
 
                 puts("\nL'output desiderato: ");
                 printf("%s\n",buffer);
@@ -243,15 +243,15 @@ int main(int argc, char *argv[])
 
                 fd--;
 
-                read(i,&richiesta,size_struct);
+                FullRead(i,&richiesta,size_struct);
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
                 if(strcmp(richiesta.nome_funzione,"somma") == 0){
                     int a,b;
                     char *token1, *token2;
-                    write(i,"Hai richiesto la funzione di somma!",strlen("Hai richiesto la funzione di somma!"));
-                    read(i,str2,100);
+                    FullWrite(i,"Hai richiesto la funzione di somma!",strlen("Hai richiesto la funzione di somma!"));
+                    FullRead(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
@@ -259,14 +259,14 @@ int main(int argc, char *argv[])
                     a = somma(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
 
                 if(strcmp(richiesta.nome_funzione,"sottrazione") == 0){
                     int a,b;
                     char *token1, *token2;
-                    write(i,"Hai richiesto la funzione di sottrazione!",strlen("Hai richiesto la funzione di sottrazione!"));
-                    read(i,str2,100);
+                    FullWrite(i,"Hai richiesto la funzione di sottrazione!",strlen("Hai richiesto la funzione di sottrazione!"));
+                    FullRead(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
@@ -274,15 +274,15 @@ int main(int argc, char *argv[])
                     a = sottrazione(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
                 if(strcmp(richiesta.nome_funzione,"osimhen") == 0){
                     int a,b;
                     char *token1, *token2;
-                    write(i,"Hai richiesto la funzione OSIMHEN!" ,strlen("Hai richiesto la funzione OSIMHEN!"));
-                    read(i,str2,100);
+                    FullWrite(i,"Hai richiesto la funzione OSIMHEN!" ,strlen("Hai richiesto la funzione OSIMHEN!"));
+                    FullRead(i,str2,100);
                     strcpy(str2,osimhen(str2));
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
 
                 fflush(stdin);

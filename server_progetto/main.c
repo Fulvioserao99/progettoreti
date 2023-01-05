@@ -2,6 +2,31 @@
 #include <stdlib.h>
 #include "functions.h"
 
+ssize_t FullWrite(int fd, const void *buf, size_t count)
+{
+	size_t nleft;
+	ssize_t nwritten;
+	nleft = count;
+	while (nleft > 0) {
+
+	/* repeat until no left */
+	if ( (nwritten = write(fd, buf, nleft)) < 0) {
+		if (errno == EINTR) { /* if interrupted by system call */
+		continue;
+		/* repeat the loop */
+		} else {
+		exit(nwritten); /* otherwise exit with error */
+		}
+	}
+
+	nleft -= nwritten;
+	/* set left to write */
+	buf +=nwritten;
+	/* set pointer */
+	}
+
+	return (nleft);
+}
 
 struct Pacchetto{
     char nome_funzione[20];
@@ -86,7 +111,7 @@ int main()
             for(int i=0; i<index; i++){
                 porta2 = atoi(storage[i].porta);
                 if(porta1 != porta2 && (strcmp(storage[i].porta,"") != 0) ){
-                    write(fd_connected,&storage[i],size_struct);
+                    FullWrite(fd_connected,&storage[i],size_struct);
                     n_count++;
 
                 }
@@ -166,7 +191,7 @@ int main()
                         porta1 = fd_open[i];
                         porta2 = atoi(storage[j].porta);
                         if(porta1 != porta2 && (strcmp(storage[j].porta,"") != 0) ){
-                            write(i,&storage[j],sizeof(storage[j]));
+                            FullWrite(i,&storage[j],sizeof(storage[j]));
                             n_count++;
                         }
 

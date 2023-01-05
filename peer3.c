@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
 
 
-    var = read(socket_c_server,&ricezione,sizeof(ricezione));
+    var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
 
     if (var>=size_struct)
         for (int i=0; i<var/size_struct; i++)
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
 
         fd = Select(maxfd+1,&readset,&writeset,NULL,NULL);
-        sleep(1);
+        
 
         if (FD_ISSET(socketfd,&readset)){
             puts("Nuovo client connesso!\n");
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 
 		fd--;
                 system("clear");
-                var = read(socket_c_server,&ricezione,sizeof(ricezione));
+                var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
                 if (var > 0 && var < size_struct)
                     puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
 
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 
             if(strcmp(buffer,standard) == 0){
                 fflush(stdin);
-                write(socket_c_server," ",strlen(" "));
+                FullWrite(socket_c_server," ",strlen(" "));
 
 
 
@@ -186,13 +186,13 @@ int main(int argc, char *argv[])
 
                 client_server.sin_port = htons(atoi(ricezione[choice].porta));
 
-                Connect(clientfd,&client_server,sizeof(client_server)); //modificare la porta con la porta della struct
+                Connect(clientfd,(struct sockaddr*)&client_server,sizeof(client_server)); //modificare la porta con la porta della struct
 
                 puts("Connesso ad un altro peer!");
 
-                write(clientfd,&ricezione[choice],sizeof(ricezione[choice])); //mando la richiesta del client
+                FullWrite(clientfd,&ricezione[choice],sizeof(ricezione[choice])); //mando la richiesta del client
 
-                read(clientfd,buffer,4096); //leggo la risposta del server per la conferma
+                FullRead(clientfd,buffer,4096); //leggo la risposta del server per la conferma
 
                 puts(buffer);
 
@@ -200,13 +200,13 @@ int main(int argc, char *argv[])
 
                 read(0,str1,30);
 
-                write(clientfd,str1,strlen(str1));
+                FullWrite(clientfd,str1,strlen(str1));
 
                 memset(buffer,0,sizeof(buffer));
 
                 memset(str1,0,sizeof(str1));
 
-                read(clientfd,buffer,4096);
+                FullRead(clientfd,buffer,4096);
 
                 puts("\nL'output desiderato: ");
                 printf("%s\n",buffer);
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
                 system("clear");
                 puts("- Digitazione non valida -\n");
                 puts("\nPremere 1 ed inviare per aggiornare la lista delle funzioni disponibili,\n o invio per richiedere una funzione ad un qualsiasi client\n");
-                continue;
+             	continue;
             }
 
 
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 
                 fd--;
 
-                read(i,&richiesta,size_struct);
+                FullRead(i,&richiesta,size_struct);
 
                 printf("E' stata richiesta la funzione: %s\n",richiesta.nome_funzione);
 
@@ -248,18 +248,18 @@ int main(int argc, char *argv[])
               if(strcmp(richiesta.nome_funzione,"lunghezza") == 0){
                     int a;
                     memset(str2,0,sizeof(str2));
-                    write(i,"Hai richiesto la funzione di lunghezza!",strlen("Hai richiesto la funzione di lunghezza!"));
-                    read(i,str2,100);
+                    FullWrite(i,"Hai richiesto la funzione di lunghezza!",strlen("Hai richiesto la funzione di lunghezza!"));
+                    FullRead(i,str2,100);
                     a = lunghezza(str2);
                     sprintf(str2,"%d",a);
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
 
                if(strcmp(richiesta.nome_funzione,"modulo") == 0){
                     int a,b;
                     char *token1, *token2;
-                    write(i,"Hai richiesto la funzione di modulo!",strlen("Hai richiesto la funzione di modulo!"));
-                    read(i,str2,100);
+                    FullWrite(i,"Hai richiesto la funzione di modulo!",strlen("Hai richiesto la funzione di modulo!"));
+                    FullRead(i,str2,100);
                     token1 = strtok(str2," ");
                     token2 = strtok(NULL, " ");
                     a = atoi(token1);
@@ -267,14 +267,14 @@ int main(int argc, char *argv[])
                     a = modulo(a,b);
                     memset(str2,0,sizeof(str2));
                     sprintf(str2,"%d",a);
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
 
                    if(strcmp(richiesta.nome_funzione,"hacked") == 0){
                     write(i,"Hai richiesto la funzione hacked!",strlen("Hai richiesto la funzione hacked!"));
-                    read(i,str2,100);
+                    FullRead(i,str2,100);
                     strcpy(str2,hacked(str2));
-                    write(i,str2,strlen(str2));
+                    FullWrite(i,str2,strlen(str2));
                 }
 
                 fflush(stdin);

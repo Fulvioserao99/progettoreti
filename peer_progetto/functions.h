@@ -8,7 +8,53 @@
 #include <time.h>
 #include <errno.h>
 
+ssize_t FullWrite(int fd, const void *buf, size_t count)
+{
+	size_t nleft;
+	ssize_t nwritten;
+	nleft = count;
+	while (nleft > 0) {
 
+	/* repeat until no left */
+	if ( (nwritten = write(fd, buf, nleft)) < 0) {
+		if (errno == EINTR) { /* if interrupted by system call */
+		continue;
+		/* repeat the loop */
+		} else {
+		exit(nwritten); /* otherwise exit with error */
+		}
+	}
+
+	nleft -= nwritten;
+	/* set left to write */
+	buf +=nwritten;
+	/* set pointer */
+	}
+
+	return (nleft);
+}
+
+ssize_t FullRead(int fd, void *buff, size_t count) {
+    size_t nleft;
+    ssize_t nread;
+    nleft = count;
+    while(nleft > 0) {
+        nread = read(fd, buff, nleft);
+        if(errno == EINTR) {
+            continue;
+        }
+        else {
+            return nread;
+        }
+        if(nread == 0) {
+            break;
+        }
+        nleft -= nread;
+        buff += nread;
+    }
+    buff = 0;
+    return nleft;
+}
 
 int Socket(int family, int type, int protocol){
     int n;
