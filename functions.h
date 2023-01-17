@@ -8,6 +8,26 @@
 #include <time.h>
 #include <errno.h>
 
+struct Pacchetto{
+    char nome_funzione[20];
+    char porta[6];
+    char parametri[15];
+    char descrizione[30];
+};
+
+
+int fix_memory(int index, int offset, int deleted, struct Pacchetto* storage){
+    for(int i=offset+deleted; i<index; i++){
+        memcpy(&storage[i-deleted],&storage[i],sizeof(storage[i]));
+    }
+    index-=deleted;
+    memset(&storage[index],0,deleted);
+    return index;
+
+}
+
+
+
 ssize_t FullWrite(int fd, const void *buf, size_t count)
 {
 	size_t nleft;
