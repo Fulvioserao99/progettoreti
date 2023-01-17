@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 		var = FullRead(socket_c_server,buff_bytes,sizeof(buff_bytes));
 		number = atoi(buff_bytes);
 		FullWrite(socket_c_server," ",strlen(" "));
-		
+		system("clear");
 		if (number){
 			recv(socket_c_server,&ricezione,number*size_struct,MSG_WAITALL); //chiama la recv con la flag waitall - aspetta l'arrivo di tutti i bytes
 			
