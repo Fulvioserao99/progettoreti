@@ -5,14 +5,6 @@
 #include <errno.h>
 
 
-
-struct Pacchetto{
-    char nome_funzione[20];
-    char porta[6];
-    char parametri[15];
-    char descrizione[30];
-}pacchetto[3],ricezione[100], richiesta;
-
 int lunghezza(char *str) {
 return strlen(str)-1;
 }
@@ -28,6 +20,8 @@ char *hacked(char *str){
 
 int main(int argc, char *argv[])
 {
+
+    struct Pacchetto pacchetto[3],ricezione[100], richiesta;
     int size_struct = sizeof(ricezione[0]);
     char buffer[4096];
     int socket_c_server, socketfd;
