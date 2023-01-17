@@ -2,31 +2,17 @@
 #include <stdlib.h>
 #include "functions.h"
 
-struct Pacchetto{
-    char nome_funzione[20];
-    char porta[6];
-    char parametri[15];
-    char descrizione[30];
-}storage[300];
 
-
-int fix_memory(int index, int offset, int deleted, struct Pacchetto* storage){
-    for(int i=offset+deleted; i<index; i++){
-        memcpy(&storage[i-deleted],&storage[i],sizeof(storage[i]));
-    }
-    index-=deleted;
-    memset(&storage[index],0,deleted);
-    return index;
-
-}
 
 int main()
 {
+
+    struct Pacchetto storage[300];
     int size_struct = sizeof(storage[0]);
     int socketfd, listenfd, i;
     char buffer[4096];
     char ricezione[4096];
-
+    
 
     socketfd = Socket(AF_INET,SOCK_STREAM,0);
 
