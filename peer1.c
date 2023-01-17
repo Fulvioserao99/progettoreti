@@ -129,6 +129,10 @@ int main(int argc, char *argv[])
 		memset(buff_bytes,0,sizeof(buff_bytes));
 		fd--;
 		var = FullRead(socket_c_server,buff_bytes,sizeof(buff_bytes));
+		if (var == 0){
+			puts("La connessione col server e' stata interrotta - Chiusura applicazione");
+                	exit(0);
+		}
 		number = atoi(buff_bytes);
 		FullWrite(socket_c_server," ",strlen(" "));
 		system("clear");
