@@ -7,11 +7,12 @@
 int main()
 {
 
-    struct Pacchetto storage[300];
+    struct Pacchetto storage[300],to_send[300];
     int size_struct = sizeof(storage[0]);
     int socketfd, listenfd, i;
     char buffer[4096];
     char ricezione[4096];
+    char number[10];
     
 
     socketfd = Socket(AF_INET,SOCK_STREAM,0);
@@ -70,15 +71,21 @@ int main()
 
             for(int i=0; i<index; i++){
                 porta2 = atoi(storage[i].porta);
-                if(porta1 != porta2 && (strcmp(storage[i].porta,"") != 0) ){
-                    FullWrite(fd_connected,&storage[i],size_struct);
-                    n_count++;
-
-                }
+                if(porta1 != porta2 && (strcmp(storage[i].porta,"") != 0) )
+               	    memcpy(&to_send[n_count++],&storage[i],size_struct); //copio nella struct to_send alla posizione n_count il contenuto della locazione iesima, se va mandata al peer
+                
             }
-
-            if(!n_count)
-                FullWrite(fd_connected," ",strlen(" "));
+	    
+                
+                    memset(number,0,sizeof(number)); //azzero l'array number
+		    sprintf(number,"%d",n_count); 
+		    FullWrite(fd_connected,number,strlen(number)); //invio il valore di n_count, ovvero il num di locazioni dell'array che gli stanno per arrivare
+		    FullRead(fd_connected,number,sizeof(number)); //leggo conferma
+		    
+		    if (n_count) //se c'e' qualcosa da mandare, lo mando
+		    	FullWrite(fd_connected,&to_send,n_count*size_struct);
+		    	
+	    memset(to_send,0,n_count); //ripulisco l'array to_send
 
             sleep(1);
 
@@ -150,18 +157,21 @@ int main()
                     for(int j=0; j<index; j++){
                         porta1 = fd_open[i];
                         porta2 = atoi(storage[j].porta);
-                        if(porta1 != porta2 && (strcmp(storage[j].porta,"") != 0) ){
-                            FullWrite(i,&storage[j],sizeof(storage[j]));
-                            n_count++;
-                        }
-
-
-
+                        if(porta1 != porta2 && (strcmp(storage[j].porta,"") != 0) )
+                            memcpy(&to_send[n_count++],&storage[j],size_struct);
                     }
+                    
+                    
+			
+		    memset(number,0,sizeof(number));
+		    sprintf(number,"%d",n_count);
+		    FullWrite(i,number,strlen(number));
+		    FullRead(i,number,sizeof(number));
+		    
+		    if (n_count)
+		    	FullWrite(i,&to_send,n_count*size_struct);
 
-
-                    if (!n_count)
-                        FullWrite(i," ",strlen(" "));
+                    memset(to_send,0,n_count);
 
 
 

@@ -74,6 +74,9 @@ int main(int argc, char *argv[])
     strcat(standard,"\n");
 
 
+    int number = 0;
+    char buff_bytes[10];
+
     socketfd = Socket(AF_INET,SOCK_STREAM,0); //creo la socket per essere server
 
     server.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -122,25 +125,25 @@ int main(int argc, char *argv[])
         }
 
         if (FD_ISSET(socket_c_server,&readset)){
-
+		number = 0;
+		memset(buff_bytes,0,sizeof(buff_bytes));
 		fd--;
-                
-                var = FullRead(socket_c_server,&ricezione,sizeof(ricezione));
-                if (var > 0 && var < size_struct){
-                    puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
-               	    puts("\nPremere 1 ed inviare per aggiornare la lista delle funzioni disponibili,\n o invio per richiedere una funzione ad un qualsiasi client\n");
-                 }
-
-                else if (var >= size_struct){
-                    for (int i=0; i<var/size_struct; i++)
-                        printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
-                    puts("\nPremere 1 ed inviare per aggiornare la lista delle funzioni disponibili,\n o invio per richiedere una funzione ad un qualsiasi client\n");
+		var = FullRead(socket_c_server,buff_bytes,sizeof(buff_bytes));
+		number = atoi(buff_bytes);
+		FullWrite(socket_c_server," ",strlen(" "));
+		
+		if (number){
+			recv(socket_c_server,&ricezione,number*size_struct,MSG_WAITALL); //chiama la recv con la flag waitall - aspetta l'arrivo di tutti i bytes
+			
+			for (int i=0; i<number; i++)
+                        	printf("\n\nStruttura %d:\nNome:%s\nPorta:%s\nParametri:%s\nDesc:%s\n",i,ricezione[i].nome_funzione,ricezione[i].porta,ricezione[i].parametri,ricezione[i].descrizione);
 		}
-                else{
-                    puts("La connessione col server e' stata interrotta - Chiusura applicazione");
-                    exit(0);
-                }
-        }
+		else
+			puts("Sei l'unico peer connesso - Nessuna funzione disponibile");
+               	    	
+               	puts("\nPremere 1 ed inviare per aggiornare la lista delle funzioni disponibili,\n o invio per richiedere una funzione ad un qualsiasi client\n");
+		
+	}
 
         i = socketfd;
 
