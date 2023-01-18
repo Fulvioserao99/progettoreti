@@ -35,20 +35,17 @@ ssize_t FullWrite(int fd, const void *buf, size_t count)
 	nleft = count;
 	while (nleft > 0) {
 
-	/* repeat until no left */
+	
 	if ( (nwritten = write(fd, buf, nleft)) < 0) {
-		if (errno == EINTR) { /* if interrupted by system call */
+		if (errno == EINTR) { 
 		continue;
-		/* repeat the loop */
 		} else {
-		exit(nwritten); /* otherwise exit with error */
+		exit(nwritten); 
 		}
 	}
 
 	nleft -= nwritten;
-	/* set left to write */
 	buf +=nwritten;
-	/* set pointer */
 	}
 
 	return (nleft);
